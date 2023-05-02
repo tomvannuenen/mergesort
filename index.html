@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MergeSort Algorithm</title>
+    <style>
+        body { display: flex; flex-direction: column; align-items: center; font-family: 'Open Sans', sans-serif; margin: 0; }
+        .text, .text-content { font-size: 18px; text-align: center; }
+        .images { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+        .section { display: flex; flex-direction: column; align-items: center; width: 100%; margin-bottom: 20px; }
+        .inline-image, .larger-image { display: block; margin: 5px auto; max-width: 400px; max-height: 400px; }
+        .images img { max-width: 700px; max-height: 700px; }
+        .questions, .options { display: flex; flex-direction: column; }
+        .question, .options { margin-bottom: 10px; }
+        .option { margin-bottom: 5px; }
+        button { width: 150px; height: 40px; font-size: 18px; cursor: pointer; margin-top: 10px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div id="content"></div>
+    <button onclick="loadNextSection()">Continue</button>
+
+    <script>
+      let startTime = Date.now();
+      let timer = setInterval(() => {
+        const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsedTime / 60);
+        const seconds = elapsedTime % 60;
+        const timerElement = document.getElementById("timer");
+        timerElement.textContent = `${minutes} minutes ${seconds} seconds elapsed`;
+      }, 1000);
+
+      class TextSection {
+        constructor(text, images = [], largerImage = null) {
+          this.text = text;
+          this.images = images;
+          this.largerImage = largerImage;
+        }
+
+        render() {
+          const div = document.createElement("div");
+          div.classList.add("section", "text");
+
+          const wrapper = document.createElement("div");
+          wrapper.classList.add("text-image-wrapper");
+          div.appendChild(wrapper);
+
+          const textDiv = document.createElement("p");
+          textDiv.innerHTML = this.text;
+          textDiv.classList.add("text-content");
+          wrapper.appendChild(textDiv);
+
+          this.images.forEach(image => {
+            const img = document.createElement("img");
+            img.src = image;
+            img.classList.add("inline-image");
+            if (this.largerImage && image === this.largerImage) {
+              img.classList.add("larger-image");
+            }
+            wrapper.appendChild(img);
+          });
+
+          return div;
+        }
+      }
+
+
+
+      class ImageSection {
+          constructor(images, largerImage = null) {
+              this.images = images;
+              this.largerImage = largerImage;
+          }
+
+          render() {
+              const div = document.createElement("div");
+              div.classList.add("section", "images");
+
+              this.images.forEach(image => {
+                  const img = document.createElement("img");
+                  img.src = image;
+                  img.classList.add("inline-image");
+                  if (this.largerImage && image === this.largerImage) {
+                      img.classList.add("larger-image");
+                  }
+                  div.appendChild(img);
+              });
+
+              return div;
+          }
+      }
+
+
+        class MultipleChoiceSection {
+            constructor(question, options, correctIndex) {
+                this.question = question;
+                this.options = options;
+                this.correctIndex = correctIndex;
+            }
+
+            render() {
+                const div = document.createElement("div");
+                div.classList.add("section", "questions");
+
+                const questionDiv = document.createElement("div");
+                questionDiv.classList.add("question");
+                questionDiv.textContent = this.question;
+                div.appendChild(questionDiv);
+
+                const optionsDiv = document.createElement("div");
+                optionsDiv.classList.add("options");
+                this.options.forEach((option, index) => {
+                    const optionLabel = document.createElement("label");
+                    optionLabel.classList.add("option");
+
+                    const optionInput = document.createElement("input");
+                    optionInput.type = "radio";
+                    optionInput.name = "option";
+                    optionInput.value = index;
+
+                    optionLabel.appendChild(optionInput);
+                    optionLabel.appendChild(document.createTextNode(option));
+
+                    optionsDiv.appendChild(optionLabel);
+                });
+                div.appendChild(optionsDiv);
+
+                return div;
+            }
+        }
+
+// ADD MORE MC QUESTIONS
+// USE CODE STUFF
+// AUDIENCE: BERKELEY GRAD STUDENT
+// STATE EXPECTATIONS UP FRONT
+// SOME CONTENT IS OLD - DON'T FOCUS ON THAT
+// TIPS: THINK ABOUT PEDAGOGICAL SEQUENCING
+// SECOND PART: LLM OR LANGUAGE BIAS - GOAL-ORIENTED ACTIVITIES
+
+
+        const sections = [
+            new TextSection(`Tennis Titans is the hot new card game in town.<br>
+            Here are some cards of tennis players.
+            Give these players a power ranking from 1 to 8!`),
+            new ImageSection(["img/t2.png"]),
+            new TextSection(`The cards are out of order right now.
+            How would you sort the cards?`),
+            new ImageSection(["img/moveable.png"]),
+            new TextSection(`What you did is actually a pretty complex procedure.<br>
+            Maybe you started with the card with the lowest number, and placed it
+            at the left.
+            Or maybe you started from the highest number.<br>
+            Or maybe you swapped cards around using some other criteria.
+            `),
+            new TextSection(`
+            Sorting data is crucial to many programming tasks.
+            There are many different approaches to do it.<br><br>
+            One of these approaches is called <b>merge sort</b>, and it's pretty cool.
+            To get an intuition for how it works, have a look at this animation.
+            `),
+            new ImageSection(["img/droste.png"]),
+            new TextSection(`
+            You might have seen this before.
+            It's called the Droste effect, and it's a form of <strong>recursion</strong>.
+            Here, it's an image with smaller versions of itself inside.
+            `),
+            new TextSection(`
+            Let's go back to our tennis cards. One way to sort them could be by breaking
+            the problem up in smaller parts.
+            This is sometimes called a <strong>divide and conquer</strong> approach.<br><br>
+            For instance, let's say we'd split up our list in two equal parts.
+            We compare each card
+            in the split lists, and put the largest one back in the original list.
+            Try it now!
+            `),
+            new ImageSection(["img/layer1.png"]),
+            new TextSection(`
+            The act of comparing and putting the cards back is called <b>merging</b>.
+            We're getting closer to solving the problem.<br>
+            However, it's not perfect. After all, we're not always comparing the
+            right cards.
+            We can keep splitting the lists up until we can't go any further.<br><br>
+            It's a bit like a tournament bracket--every time two players encounter
+            each other, their power level determines how they will be sorted.
+            `),
+            new ImageSection(["img/layerall.png"]),
+
+            new TextSection(`
+            Sweet! Splitting up the problem has solved it.
+            The tennis players have been sorted based on their power ranking.
+            `),
+
+            new TextSection(`
+            If we would code this, we could create a function that repeats itself
+            when splitting and merging.
+            `),
+
+            new ImageSection(["img/order.png"]),
+
+            new TextSection(`
+            Note the "repeat steps" part of the code. This is recursion at work!
+            When we write this in code, we write a function that calls itself.
+            `),
+            new ImageSection(["img/droste-2.png"]),
+
+            new TextSection(`
+            This is recursion in code! A function that calls itself in order to
+            solve a smaller version of the same problem.
+            `),
+
+            new TextSection(`
+            "Merging" actually just means to put the cards back into a new array
+            in the right order.
+            Have a look at all the operations we did again.
+            In total, we merge 8 + 8 + 8 = 24 times.
+            `),
+            new ImageSection(["img/counter.png"]),
+
+            new MultipleChoiceSection("How often would we merge if we had 16 cards?", ["24 times", "48 times", "64 times"], 1),
+
+            new TextSection(`
+            It turns out merge sort is a relatively efficient sorting algorithms.
+            Let's see what happens if we make our collection of cards bigger!
+            `),
+
+            new ImageSection(["img/list_expansion1.png"]),
+            new ImageSection(["img/list_expansion2.png"]),
+
+            new TextSection(`
+            Since we are splitting, the amount of steps we have to take increases
+            based on the amount of items in the list.<br>
+            We can express how much time an algorithm takes to solve a problem
+            as a function of the size of the input. This is called
+            <b>time complexity</b>.
+            `),
+
+            new TextSection(`
+            In sorting algorithms, time complexity is often expressed in terms of
+            "Big O" notation, which describes the worst-case scenario for the
+            algorithm's runtime as the input size grows larger.<br><br>
+            `),
+
+            new TextSection(`
+            In general, the time complexity of merge sort is O(n log n), which
+            means that the time it takes to sort a list of size n grows
+            logarithmically with n.  <br><br>
+
+            For n = 4, the time complexity of merge sort is O(log n) or O(2).<br>
+            For n = 8, the time complexity of merge sort is O(3).<br>
+            For n = 16, the time complexity of merge sort is O(4).<br>
+            For n = 32, the time complexity of merge sort is O(5).<br>
+            For n = 64, the time complexity of merge sort is O(6).<br>
+            For n = 128, the time complexity of merge sort is O(7).<br>
+            `),
+
+
+            new ImageSection(["img/graph.png"]),
+
+            new TextSection(`
+            In the next lesson you will learn about some ways to improve the
+            efficiency of merge sort, which is still used in programming languages
+            like Python every day!
+            `),
+
+
+        ];
+        let currentSection = 0;
+
+        function loadNextSection() {
+            if (currentSection < sections.length) {
+                const sectionElement = sections[currentSection].render();
+                const previousSection = document.querySelector('.section:last-child');
+                if (previousSection) {
+                    previousSection.replaceWith(sectionElement);
+                } else {
+                    document.getElementById("content").appendChild(sectionElement);
+                }
+                currentSection++;
+            } else {
+                alert("No more sections to display.");
+            }
+        }
+
+        // Load the first section when the page loads
+        window.addEventListener("DOMContentLoaded", () => {
+            loadNextSection();
+        });
+    </script>
+    <div id="timer">0 seconds elapsed</div>
+
+</body>
+</html>
