@@ -9,10 +9,12 @@
         body { display: flex; flex-direction: column; align-items: center; font-family: 'Open Sans', sans-serif; margin: 0; }
         .text, .text-content { font-size: 18px; text-align: left; }
         .images { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
-        .section { display: flex; flex-direction: column; align-items: center; max-width: 100%; margin-bottom: 20px; margin-left: 50px; margin-right: 50px; }
+        .section { display: flex; flex-direction: column; align-items: center; max-width: 100%; margin-top: 20px; margin-bottom: 20px; margin-left: 150px; margin-right: 150px; }
         .inline-image, .larger-image { display: block; margin: 5px auto; max-width: 400px; max-height: 400px; }
         .images img { max-width: 700px; max-height: 700px; }
-        .questions, .options { display: flex; flex-direction: column; }
+        .back-button { width: 100px; height: 30px; font-size: 14px; cursor: pointer; margin-top: 10px; margin-bottom: 20px; }
+        .page-numbers { margin-top: 10px; margin-bottom: 20px; }
+        .questions, .options { display: flex; flex-direction: column; font-size: 18px; }
         .question, .options { margin-bottom: 10px; }
         .option { margin-bottom: 5px; }
         button { width: 150px; height: 40px; font-size: 18px; cursor: pointer; margin-top: 10px; margin-bottom: 20px; }
@@ -21,6 +23,8 @@
 <body>
     <div id="content"></div>
     <button onclick="loadNextSection()">Continue</button>
+    <button class="back-button" onclick="loadPreviousSection()">Back</button>
+    <span class="page-numbers" id="page-numbers"></span>
 
     <script>
       let startTime = Date.now();
@@ -32,43 +36,6 @@
         timerElement.textContent = `${minutes} minutes ${seconds} seconds elapsed`;
       }, 1000);
 
-
-
-/*
-       class TextSection {
-        constructor(text, images = [], largerImage = null) {
-          this.text = text;
-          this.images = images;
-          this.largerImage = largerImage;
-        }
-
-        render() {
-          const div = document.createElement("div");
-          div.classList.add("section", "text");
-
-          const wrapper = document.createElement("div");
-          wrapper.classList.add("text-image-wrapper");
-          div.appendChild(wrapper);
-
-          const textDiv = document.createElement("p");
-          textDiv.innerHTML = this.text;
-          textDiv.classList.add("text-content");
-          wrapper.appendChild(textDiv);
-
-          this.images.forEach(image => {
-            const img = document.createElement("img");
-            img.src = image;
-            img.classList.add("inline-image");
-            if (this.largerImage && image === this.largerImage) {
-              img.classList.add("larger-image");
-            }
-            wrapper.appendChild(img);
-          });
-
-          return div;
-        }
-      }
-*/
       class TextSection {
         constructor(text, images = [], largerImage = null) {
           this.text = text;
@@ -174,10 +141,13 @@
 // SECOND PART: LLM OR LANGUAGE BIAS - GOAL-ORIENTED ACTIVITIES
 
 
+
         const sections = [
             new TextSection(`Mig the Moonlit Menace has found treasure!
             A stack of eight chests,
-            to be precise. But there’s a problem. The treasure chests all look the
+            to be precise. <br><br>
+
+            But there’s a problem. The treasure chests all look the
             same. Mig wants to find out which chest is <b>heaviest</b>, so they
             know which has the most diamonds. <br><br>
             Luckily, Mig has a <b>scale</b> on his ship to compare two chests at a time.
@@ -187,94 +157,100 @@
             Can you sort them in ascending order?
             `, ["img/drag.png"]),
 
-            new TextSection(`It seems so easy, but what you did is probably not
+            new TextSection(`It seems so easy, but what you did is not
             as straightforward as it seems!<br>
             Maybe you started with the chest with the lowest number, and placed it
             at the left.
             Or maybe you started from the highest number, or swapped cards around
-            using some other criteria.
+            using some other criteria.<br><br>
+            There are many different kinds of procedures -- <b>algorithms</b> --
+            we could follow to sort the chests.
             `),
 
             new TextSection(`
-            If Mig were a naive pirate (which he isnt!), he could just compare
-            all chests to one another. The number of permutations for a list of
+            Why are those algorithms helpful?
+            Well, compare how long it would take if Mig would use brute force to compare
+            all chests to one another.<br><br>
+
+            The number of permutations for a list of
             length n is n! (n factorial), which represents all possible orderings
-            of the elements.
+            of the chests.
             `),
 
-            new MultipleChoiceSection(`If he would have to use brute force to
+            new MultipleChoiceSection(`If Mig would have to use brute force to
               compare all 8 chests with
-              one another, how many permutations would Mig have to make?`
+              one another, how many permutations would he have to make?`
               , ["24 permutations", "64 permutations", "40,320 permutations"], 1),
 
+            new TextSection(`
+            That's way too many permutations. Time is money--er, treasure!<br><br>
+
+            It would be great if the stack of chests was smaller.
+            If we had only 4 chests, that would be so much easier than sorting 8!`,
+            ["img/drag4.png"]),
+
+            new MultipleChoiceSection(`Again, if we would use brute force to
+              compare 4 chests, how many permutations would that be?`
+              , ["24 permutations", "64 permutations", "40,320 permutations"], 1),
 
             new TextSection(`
-            However, Mig doesn't have time to waste. There's more treasure out there!
-            So Mig wants to try a more clever approach.
-            One of these approaches is called <b>merge sort</b>, and it's pretty cool.
-            Let's help Mig out.
-            `),
+            Okay, so that is easier. But now how do we get back to the
+            8 chests?<br><br>
+            This is where merging comes in. Mig likes the sound of that.
+            `,["img/mig-merge.png"]),
 
-            new TextSection(`
-            Merge sort breaks the problem up in smaller parts.
-            This is sometimes called a <strong>divide and conquer</strong> approach.
-            Mig likes the sound of that!<br><br>
+            new TextSection(
 
-            For instance, let's say we'd split up our chests right down the middle,
-            into two equal sub-stacks.<br>
+            `Merging works as follows:<br>
             <ul>
             <li>We begin comparing the chests in both sub-stacks, starting on the left of both.</li>
             <li>The lightest chest of the two is moved back to the original stack.</li>
             <li>We then move to the next chest in the sub-stack we just removed a chest from.</li>
             </ul>
-            Try it now!
+            Try it now!`,["img/layer1-1.png"]),
 
-            `),
-
-            // change to chests
-            new ImageSection(["img/layer1-1.png"]),
             new ImageSection(["img/layer1-2.png"]),
             new ImageSection(["img/layer1-3.png"]),
 
             new TextSection(`
-            In merge sort,
-            the act of comparing and putting the chests back is called <b>merging</b>.<br><br>
-            We're getting closer to solving the problem.<br>
-            However, it's not perfect. After all, we're not always comparing the
-            right chests.
-            But we don't have to stop here! We can keep splitting the chests
-            until we can't go any further.<br><br>
+            It looks like this combination of splitting, comparing, and putting
+            chests back together is working. <br><br>
+
+            But Mig is a bit worried. What if he had many more chests? He's an
+            ambitious pirate, after all.
+
+            If he had 10,000 chests, splitting them up would still mean having
+            to sort 5,000 chests. That's still too much...
             `),
 
-            new ImageSection(["img/layerall-1.png"]),
+            new TextSection(`
+            Well, what if we keep splitting? We could go on and on,
+            until we can't go any further. Then we compare them pair by pair,
+            and put them back together. Try it out!
+            `, ["img/layerall-1.png"]),
 
             new TextSection(`
-            Great job! We sorted, then merged the treasure chests based on their weights!
-            "Merging" actually just means to put the chests back into a stack
-            in the right order.
-            `),
-            new TextSection(`
-            What we're doing has a fancy term: <b>recursion</b>.
-            We basically split up the problem into smaller versions of itself.
+            Great job! We sorted, then merged the treasure chests based on their weights!<br><br>
+            This is the essence of <b>merge sort</b>: it breaks the problem up in
+            smaller parts.
+            Splitting up the problem into smaller versions of itself has a fancy
+            term: <b>recursion</b>.
+            It is also sometimes called a divide and conquer approach. Mig likes
+            the sound of that!
             `),
 
             new TextSection(`
             Recursion happens a lot in programming.
-            If we would code this, we could create a function that repeats itself
-            when splitting and merging.<br><br>
-            The code would first check the length of our input. If it's more than 1,
-            it will find the midpoint, split the input in half, and <b>invoke itself</b>
-            on each of the halves.
-            `),
-
-            new TextSection(`
-            Try to put the following pseudo-code in order.
-            Note that this is just the part of the code that splits up our list into sub-lists!
-            `, ["img/Order.png"]),
-
-            new TextSection(`
-            Note the "call self" part of the code. This is called <b>recursion</b>.
-            When we write this in code, we write a function that calls itself.
+            If we would code merge sort, we would create a function that repeats itself
+            when splitting and merging a list of numbers.<br><br>
+            The code would first check the length of our input list. If the length
+            is more than 1,
+            it will find the midpoint, split the list in half, and <b>call itself</b>
+            on each of the halves. It will stop this process when the list length is 1--
+            after all, you can't split a list of 1 any further!
+            The code will then begin to merge the numbers, moving back up in the
+            order of recursion.<br><br>
+            Let's see how this works in pseudo-code!
             `),
 
             new ImageSection(["img/Order2.png"]),
@@ -282,38 +258,27 @@
             new ImageSection(["img/Order4.png"]),
             new ImageSection(["img/Order5.png"]),
 
-
             new TextSection(`
             This is recursion in code! A function that calls itself in order to
-            solve a smaller version of the same problem.
+            solve a smaller version of the same problem.<br><br>
+            The key point to understand is that when a function returns,
+            it returns to wherever it was called from
             `),
-
-            new TextSection(`
-            If we want to get a better intuition of what happens when we code this,
-            we can <b>print out</b> the lists as they are created.
-            `,["img/print.png"]),
-
-            new MultipleChoiceSection("If we would print the left variable each time, what would the output be?", ["24 times", "48 times", "64 times"], 1),
 
             new TextSection(`
             Have a look at all the operations we did again.
             In total, we merge 8 + 8 + 8 = 24 times.<br><br>
-            Recall that this is only slightly better than the 28 combinations
-            we would need to do if we would just compare all chests.<br><br>
-            However, if we start scaling this problem up, things start to look different.
-            `),
-
-            new ImageSection(["img/counter.png"]),
+            `, ["img/layerall-1.png"]),
 
             new MultipleChoiceSection("How often would we merge if we had 16 chests?", ["24 times", "48 times", "64 times"], 1),
 
+            new ImageSection(["img/counter.png"]),
+
+
             new TextSection(`
             It turns out merge sort is a relatively efficient sorting algorithms.
-            Let's see what happens if we make our collection of cards bigger!
+            But what happens if we make our collection bigger?
             `),
-
-            new ImageSection(["img/list_expansion1.png"]),
-            new ImageSection(["img/list_expansion2.png"]),
 
             new TextSection(`
             Since we are splitting, the amount of steps we have to take increases
@@ -325,24 +290,28 @@
 
             new TextSection(`
             In sorting algorithms, time complexity is often expressed in terms of
-            "Big O" notation, which describes the worst-case scenario for the
+            <b>Big O</b> notation, which describes the worst-case scenario for the
             algorithm's runtime as the input size grows larger.<br><br>
+            What is a worst-case scenario? Imagine a list that is sorted in the
+            opposite order! Everything would need to be swapped.
             `),
 
             new TextSection(`
             In general, the time complexity of merge sort is O(n log n), which
             means that the time it takes to sort a list of size n grows
-            logarithmically with n.<br><br>
+            <b>logarithmically</b> with n.<br><br>
 
-            This process of dividing the list in half is logarithmic in nature,
-            as each division reduces the number of elements by half!`
+            The process of dividing the list in half is logarithmic in nature,
+            as each division reduces the number of elements by half! Have a look:`
             ,["img/log.png"]),
 
-            new TextSection(`Note that we're only assuming that n is always even
-            to make things simple and to work with even sub-lists. However,
-            merge sort also works with odd lengths of n.`,["img/scale.png"]),
+            new TextSection(`As you can see, merge sort scales pretty well.
+            The amount of steps it takes (expressed as "time", which is what
+            "time complexity" refers to) does not grow as fast as the list itself.
+            Logarithms are pretty neat!
+            `,["img/scale.png"]),
 
-            new TextSection(`Sorting algorithms come in all kinds of complexity.
+            new TextSection(`Sorting algorithms come in all kinds of time complexity.
             Here's a few!`,["img/graph.png"]),
 
             new TextSection(`
@@ -355,6 +324,15 @@
         ];
         let currentSection = 0;
 
+        function loadPreviousSection() {
+            if (currentSection > 1) {
+                currentSection -= 2;
+                loadNextSection();
+            } else {
+                alert("No previous sections to display.");
+            }
+        }
+
         function loadNextSection() {
             if (currentSection < sections.length) {
                 const sectionElement = sections[currentSection].render();
@@ -364,10 +342,17 @@
                 } else {
                     document.getElementById("content").appendChild(sectionElement);
                 }
+                updatePageNumbers();
                 currentSection++;
             } else {
                 alert("No more sections to display.");
             }
+        }
+
+        function updatePageNumbers() {
+            var pageNumber = currentSection + 1;
+            var totalPages = sections.length;
+            document.getElementById("page-numbers").innerHTML = "Page " + pageNumber + " of " + totalPages;
         }
 
         // Load the first section when the page loads
