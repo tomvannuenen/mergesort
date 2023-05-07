@@ -178,25 +178,25 @@
             `),
 
             new MultipleChoiceSection(`Say that Mig would use brute force to
-              put all 8 chests in the right order. How many permutations of these
-              8 chests would be possible?`
+              put all eight chests in the right order. How many permutations of these
+              eight chests would be possible?`
               , ["24 permutations", "64 permutations", "40,320 permutations"], 1),
 
             new TextSection(`
             That's way too much work. Time is money--er, treasure!<br><br>
 
             It would be great if the stack of chests was smaller.
-            If we had only 4 chests, that would be so much easier than sorting 8!`,
+            If we had only four chests, that would be so much easier than sorting 8!`,
             ["img/drag4.png"]),
 
             new MultipleChoiceSection(`Again, if we would use brute force to
-              compare 4 chests, how many permutations would that be?`
+              organize 4 chests, how many permutations would that be?`
               , ["24 permutations", "64 permutations", "40,320 permutations"], 1),
 
             new TextSection(`
-            Okay, so that is easier. But now how do we get back to the
-            8 chests?<br><br>
-            This is where merging comes in. Mig likes the sound of that.
+            Okay, so sorting four chests is easier. But now, how do we get back to the
+            eight chests?<br><br>
+            We need a way to somehow merge these two lists of four chests!
             `,["img/mig-merge.png"]),
 
             new TextSection(
@@ -244,10 +244,10 @@
             If we would code merge sort, we would create a function that repeats itself
             when splitting and merging a list of numbers.<br><br>
             The code would first check the length of our input list. If the length
-            is more than 1,
+            is more than one,
             it will find the midpoint, split the list in half, and <b>call itself</b>
             on each of the halves. It will stop this process when the list length is 1--
-            after all, you can't split a list of 1 any further!
+            after all, you can't split a list of one any further!
             The code will then begin to merge the numbers, moving back up in the
             order of recursion.<br><br>
             Let's see how this works in pseudo-code!
